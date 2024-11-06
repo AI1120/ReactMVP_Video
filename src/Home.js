@@ -18,14 +18,16 @@ function Home() {
             try {
                 const response = await fetch(apiUrl);
                 const data = await response.json();
+                console.log('Response:', data);
                 
                 if (response.ok){
-                if (data.status === "exist" && start == true) {
+                if (data.status === "exist" ) {
                     console.log('Response:', data);
                     setFileExists(true);
                     setLoading(false)
                 } else {
                     setFileExists(false);
+                    setLoading(true);
                 }}
             } catch (error) {
                 setFileExists(false);
