@@ -78,7 +78,7 @@ function Home() {
 
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col items-center">
-            <h1 className="text-3xl font-bold mb-6 text-center mt-[150px]">Music Tech MVP</h1>
+            <h1 className="text-3xl font-bold mb-6 text-center mt-[150px]">Music Tech MVP :)</h1>
             <div className="flex flex-col md:flex-row max-w-6xl w-full bg-[#d9d8d8] shadow-md rounded-lg">
                 <div className="md:w-1/3 p-4 border-r bg-white border-gray-200">
                     <h2 className="text-xl font-semibold mb-4">INPUT</h2>
