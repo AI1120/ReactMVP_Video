@@ -10,9 +10,17 @@ function Home() {
     const [genre, setGenre] = useState('');
     const [fileExists, setFileExists] = useState(false);
     const [start, setStart] = useState(false)
-    const videoUrl = "https://5e816k90973iom-8000.proxy.runpod.net/download_result";
-    const apiUrl = "https://5e816k90973iom-8000.proxy.runpod.net/check_video";
-    
+    const [videoUrl, setVideoUrl] = useState('');
+    const [apiUrl, setApiUrl] = useState('');
+    const [status, setStatus] = useState('');
+    const [taskId, setTaskId] = useState("");
+
+    useEffect(() => {
+        if (taskId) {
+          setVideoUrl(`https://00pvfbru1fa17r-8000.proxy.runpod.net/download_result/${taskId}`);
+          setApiUrl(`https://00pvfbru1fa17r-8000.proxy.runpod.net/check_status/${taskId}`);
+        }
+      }, [taskId]);
     useEffect(() => {
         const checkFileExistence = async () => {
             try {
@@ -21,7 +29,8 @@ function Home() {
                 console.log('Response:', data);
                 
                 if (response.ok){
-                if (data.status === "exist" ) {
+                    setStatus(data.status);
+                if (data.status === "completed" ) {
                     console.log('Response:', data);
                     setFileExists(true);
                     setLoading(false)
@@ -39,7 +48,7 @@ function Home() {
 
         // Cleanup on component unmount
         return () => clearInterval(intervalId);
-    }, []);
+    }, [apiUrl]);
     
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,7 +57,7 @@ function Home() {
 
 
         try {
-            const response = await fetch('https://5e816k90973iom-8000.proxy.runpod.net/generate/', {
+            const response = await fetch('https://00pvfbru1fa17r-8000.proxy.runpod.net/generate/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -67,8 +76,11 @@ function Home() {
     
             const data = await response.json();  // Parse JSON response
             console.log(data);  // Log the response to the console
+            setTaskId(data.task_id);
+
             if (data.status === 'processing') {
                 console.log("Video generation is in progress...");
+
             }
     
         } catch (error) {
@@ -149,7 +161,7 @@ function Home() {
                     {loading ? (
                         <div className="flex flex-col items-center">
                             <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                            <p className="text-center text-gray-500">Loading...</p>
+                            <p className="text-center text-gray-500">{status}</p>
                         </div>
                     ) : fileExists ? (
                         <video className="w-full h-full" autoPlay controls>
