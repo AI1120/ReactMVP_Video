@@ -1,63 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import './style.css';  // Ensure this style file exists or create one
+import './style.css'; // Ensure this style file exists or create one
 
 function Home() {
     const [character, setCharacter] = useState('');
     const [environment, setEnvironment] = useState('');
     const [song, setSong] = useState('');
     const [loading, setLoading] = useState(false);
-    const [videoData, setVideoData] = useState(null);
-    const [genre, setGenre] = useState('');
-    const [fileExists, setFileExists] = useState(false);
-    const [start, setStart] = useState(false)
     const [videoUrl, setVideoUrl] = useState('');
-    const [apiUrl, setApiUrl] = useState('');
-    const [status, setStatus] = useState('');
-    const [taskId, setTaskId] = useState("");
+    const [genre, setGenre] = useState('');
 
-    useEffect(() => {
-        if (taskId) {
-          setVideoUrl(`https://00pvfbru1fa17r-8000.proxy.runpod.net/download_result/${taskId}`);
-          setApiUrl(`https://00pvfbru1fa17r-8000.proxy.runpod.net/check_status/${taskId}`);
-        }
-      }, [taskId]);
-    useEffect(() => {
-        const checkFileExistence = async () => {
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-                console.log('Response:', data);
-                
-                if (response.ok){
-                    setStatus(data.status);
-                if (data.status === "completed" ) {
-                    console.log('Response:', data);
-                    setFileExists(true);
-                    setLoading(false)
-                } else {
-                    setFileExists(false);
-                    setLoading(true);
-                }}
-            } catch (error) {
-                setFileExists(false);
-            }
-        };
-
-        // Check every 5 seconds (10000 ms)
-        const intervalId = setInterval(checkFileExistence, 10000);
-
-        // Cleanup on component unmount
-        return () => clearInterval(intervalId);
-    }, [apiUrl]);
-    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setStart(true);
-
+        setVideoUrl(''); // Reset the video URL before new generation
 
         try {
-            const response = await fetch('https://00pvfbru1fa17r-8000.proxy.runpod.net/generate/', {
+            const response = await fetch('https://xy8pxzs8vt8j9a-8000.proxy.runpod.net/generate-video-audio/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,22 +27,18 @@ function Home() {
                     genre,
                 }),
             });
-    
+
             if (!response.ok) {
-                throw new Error('Error generating video');
+                throw new Error('Failed to generate video and audio');
             }
-    
-            const data = await response.json();  // Parse JSON response
-            console.log(data);  // Log the response to the console
-            setTaskId(data.task_id);
 
-            if (data.status === 'processing') {
-                console.log("Video generation is in progress...");
-
-            }
-    
+            const data = await response.json();
+            setVideoUrl(data.video_url);
         } catch (error) {
             console.error('Error:', error);
+            alert('There was an error generating the video. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -161,17 +115,16 @@ function Home() {
                     {loading ? (
                         <div className="flex flex-col items-center">
                             <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                            <p className="text-center text-gray-500">{status}</p>
+                            <p className="text-center text-gray-500">Generating video...</p>
                         </div>
-                    ) : fileExists ? (
+                    ) : videoUrl ? (
                         <video className="w-full h-full" autoPlay controls>
                             <source src={videoUrl} type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     ) : (
-                        <p>Welcome</p>
+                        <p>Welcome! Enter details to generate a video.</p>
                     )}
-                    
                 </div>
             </div>
         </div>
